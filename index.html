@@ -1148,8 +1148,9 @@ button, [data-action], .dock { touch-action: manipulation; }
       <p class="muted">Вход для студентов</p>
       <label class="field"><span>Логин</span><input name="login" autocomplete="username" placeholder="Логин"></label>
       <label class="field"><span>Пароль</span><input name="password" type="password" autocomplete="current-password" placeholder="Пароль"></label>
+      <p id="loginError" class="hint" role="alert" hidden></p>
       <button class="btn" type="submit">Войти</button>
-      <p class="hint">Пока вход открыт: логин и пароль можно не вводить</p>
+      <p class="hint">Демо-вход: student / lk-demo-2026<br>Жюри: jury / jury-demo-2026</p>
     </form>
   </main>
 
@@ -1349,15 +1350,29 @@ function lanes(list) {
 }
 
 /* ---------- Вход ---------- */
-$('#loginForm').addEventListener('submit', e => {
-  e.preventDefault();
-  e.target.reset(); // shortcut: вход без проверки логина и пароля, заменить на серверную авторизацию (этап 1 плана)
+const DEMO_ACCOUNTS = { student: 'lk-demo-2026', jury: 'jury-demo-2026' };
+function openApp() {
   $('#login').hidden = true;
   const app = $('#app');
   app.hidden = false;
   app.classList.add('app-in');
   measure();
   go('home');
+  openDeepLink();
+}
+$('#loginForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const form = e.target, login = form.elements.login.value.trim(), password = form.elements.password.value;
+  const error = $('#loginError');
+  if (!Object.hasOwn(DEMO_ACCOUNTS, login) || DEMO_ACCOUNTS[login] !== password) {
+    error.textContent = 'Неверный логин или пароль';
+    error.hidden = false;
+    form.elements.password.value = '';
+    return;
+  }
+  error.hidden = true;
+  form.reset();
+  openApp();
 });
 
 /* ---------- Главная: крупные часы ---------- */
@@ -2317,19 +2332,17 @@ document.addEventListener('keydown', e => {
 });
 addEventListener('resize', () => { if (!srch.hidden) { sGeom(); sPaint(); } });
 
-/* ---------- Прямая ссылка на экран: index.html#schedule, #schedule:1 (уровень), #lesson, #search, #study, #docs:order, #docs:app, #docs:archive, #inbox, #inbox:dean (чат), #inbox:news, #inbox:events, #profile, #settings ---------- */
-// shortcut: пока вход открытый, ссылка с экраном пропускает форму входа; убрать вместе с настоящей авторизацией
-addEventListener('DOMContentLoaded', function deepLink() {
+/* ---------- Прямая ссылка на экран: после успешного входа ---------- */
+function openDeepLink() {
   const [view, arg] = decodeURIComponent(location.hash.slice(1)).split(':');
   if (!view) return;
-  $('#loginForm').requestSubmit();
   if (view === 'search') { openSearch(); if (arg) { sIn.value = arg; renderHits(); } return; }
   if (view === 'lesson') { go('schedule'); zoomTo(3); const d = eventsFor(today0()).length ? today0() : nextDayWith(today0()); cal.F = d; header(); paint(); openLesson(dkey(d), 0); return; }
   go(view);
   if (view === 'schedule' && arg) zoomTo(+arg);
   if (view === 'inbox' && arg) window.ZK.inbox(arg);
   if (view === 'docs' && arg) arg === 'order' ? window.ZK.order('study') : window.ZK.picker(arg === 'app' ? 'app' : arg === 'archive' ? 'archive' : 'cert');
-});
+}
 </script>
   <script>
 // Разделы Учёба, Заявки, Уведомления и Профиль из шаблона «Зачётка» (данные демонстрационные)
@@ -2401,16 +2414,16 @@ function weekInfo(){
 
 /* ===== данные студента (пример) ===== */
 const STUDENT = {
-  fio:"Соколова Анна Дмитриевна", short:"Анна", initials:"АС",
+  fio:"Демо Студент", short:"Студент", initials:"ДС",
   inst:"Институт информационных технологий", program:"09.03.04 Программная инженерия",
   profile:"Разработка программно-информационных систем", course:3, group:"ПИ-31", form:"очная, бюджет",
   funding:"budget",   // budget — бюджет (видна стипендия), contract — договор
-  id:"21-0417", email:"a.sokolova@student.example.ru", curator:"Лебедева Ольга Игоревна"
+  id:"DEMO-001", email:"student@example.invalid", curator:"Демо Куратор"
 };
 /* три окна профиля: [подпись, значение, скрыто по умолчанию] */
 const PROFILE_INFO = [
   {id:"main", t:"Основное", rows:[
-    ["Номер зачётной книжки", "21-0417-ПИ", true],
+    ["Номер зачётной книжки", "DEMO-001-ПИ", true],
     ["Факультет", STUDENT.inst],
     ["Уровень подготовки", "Бакалавриат"],
     ["Направление подготовки", STUDENT.program],
@@ -2421,18 +2434,18 @@ const PROFILE_INFO = [
     ["Статус обучения", "Обучается"]]},
   {id:"personal", t:"Личное", rows:[
     ["Корпоративная почта", STUDENT.email, true],
-    ["Логин для учебных сервисов", "a.sokolova21", true],
-    ["Пароль от почты", "Lk-7#qT29vN", true],
-    ["Дата рождения", "14 марта 2006"],
-    ["Адрес проживания", "Санкт-Петербург, ул. Политехническая, 21, общежитие № 3, к. 412"],
+    ["Логин для учебных сервисов", "demo.student", true],
+    ["Пароль от почты", "Не задан", true],
+    ["Дата рождения", "Не указана"],
+    ["Адрес проживания", "Не указан"],
     ["Пол", "Женский"]]},
   {id:"contacts", t:"Контакты", rows:[
-    ["Мобильный телефон", "+7\u00a0(921)\u00a0555-41-07"],
-    ["Личная почта", "anna.sokolova@mail.example"],
-    ["Telegram", "@anna_sokolova"],
-    ["ВКонтакте", "vk.com/a.sokolova"],
-    ["Экстренный контакт", "Соколова Елена Викторовна, мама · +7\u00a0(921)\u00a0555-18-62"],
-    ["Куратор группы", STUDENT.curator + " · o.lebedeva@example.ru"]]}
+    ["Мобильный телефон", "Не указан"],
+    ["Личная почта", "demo@example.invalid"],
+    ["Telegram", "Не указан"],
+    ["ВКонтакте", "Не указан"],
+    ["Экстренный контакт", "Не указан"],
+    ["Куратор группы", STUDENT.curator + " · o.lebedeva@example.invalid"]]}
 ];
 const SLOTS = [null,["08:30","10:00"],["10:10","11:40"],["11:50","13:20"],["14:00","15:30"],["15:40","17:10"],["17:20","18:50"]];
 const TYPE = { lec:["Лекция",""], prac:["Практика","accent"], lab:["Лабораторная","accent"], pe:["Занятие",""] };
@@ -2538,10 +2551,10 @@ const DEFAULT_CHAT = [
 /* мессенджер: деканат хранит переписку в S.chat (как раньше), у остальных к примерам добавляются свои сообщения из S.chats */
 const CHATS = [
   {id:"dean", n:"Деканат ИИТ", ini:"ИВ", role:"Ирина Волкова, методист · отвечает за 2–3 часа", unread:0,
-    info:[["Кабинет","214, корпус Б"],["Приём","пн–чт 10:00–16:00, пт до 15:00"],["Обед","13:00–13:45"],["Телефон","+7 (812) 555-02-14"],["Почта","dekanat.iit@example.ru"]],
+    info:[["Кабинет","214, корпус Б"],["Приём","пн–чт 10:00–16:00, пт до 15:00"],["Обед","13:00–13:45"],["Телефон","Не указан"],["Почта","dekanat.iit@example.invalid"]],
     reply:"Получила, посмотрю и отвечу сегодня до 16:00."},
-  {id:"curator", n:"Лебедева Ольга Игоревна", ini:"ЛО", role:"куратор группы ПИ-31", unread:1,
-    info:[["Кафедра","Программной инженерии, 228-Б"],["Часы","вт и чт 14:00–15:30"],["Почта","o.lebedeva@example.ru"]],
+  {id:"curator", n:"Демо Куратор", ini:"ЛО", role:"куратор группы ПИ-31", unread:1,
+    info:[["Кафедра","Программной инженерии, 228-Б"],["Часы","вт и чт 14:00–15:30"],["Почта","o.lebedeva@example.invalid"]],
     reply:"Хорошо, Анна, обсудим после пары.",
     msgs:[{me:false, t:"Анна, напоминаю: до пятницы сдать согласие на практику в деканат.", w:"12 ноя, 10:15"},
       {me:true, t:"Спасибо! Отнесу в четверг.", w:"12 ноя, 10:40"},
@@ -2552,12 +2565,12 @@ const CHATS = [
       {me:false, who:"Дарья Ким", t:"Кто-нибудь скинет конспект последней лекции по БД?", w:"13 ноя, 21:03"},
       {me:false, who:"Илья Смирнов", t:"Скинул в папку группы, раздел «Неделя 11».", w:"13 ноя, 21:20"}]},
   {id:"petrov", n:"Петров Дмитрий Сергеевич", ini:"ПД", role:"преподаватель · теория вероятностей", unread:0,
-    info:[["Кафедра","Высшей математики, 305-А"],["Консультации","ср 13:30–14:00"],["Почта","d.petrov@example.ru"]],
+    info:[["Кафедра","Высшей математики, 305-А"],["Консультации","ср 13:30–14:00"],["Почта","d.petrov@example.invalid"]],
     reply:"Принято. Посмотрю после проверки работ.",
     msgs:[{me:true, t:"Дмитрий Сергеевич, можно сдать КР № 2 на консультации в среду?", w:"10 ноя, 17:30"},
       {me:false, t:"Можно, приходите к 13:30. Захватите черновик.", w:"10 ноя, 19:05"}]},
   {id:"lib", n:"Библиотека", ini:"Б", role:"абонемент, корпус А · каб. 104", unread:1,
-    info:[["Часы","пн–пт 9:00–19:00, сб до 15:00"],["Телефон","+7 (812) 555-01-04"]],
+    info:[["Часы","пн–пт 9:00–19:00, сб до 15:00"],["Телефон","Не указан"]],
     reply:"Спасибо! Книга забронирована на 3 дня.",
     msgs:[{me:false, t:"«Базы данных» Дейта, которую вы бронировали, вернулась. Заберите до 18 ноября.", w:"14 ноя, 09:12"}]}
 ];
@@ -2565,7 +2578,7 @@ const CHATS = [
    id "petrov" и "curator" совпадают с чатами выше: поиск открывает существующую переписку */
 const PEOPLE = [
   ["petrov","teacher","Петров Дмитрий Сергеевич","теория вероятностей","Высшей математики, 305-А","ср 13:30–14:00","d.petrov"],
-  ["curator","teacher","Лебедева Ольга Игоревна","базы данных, куратор ПИ-31","Программной инженерии, 228-Б","вт и чт 14:00–15:30","o.lebedeva"],
+  ["curator","teacher","Демо Куратор","базы данных, куратор ПИ-31","Программной инженерии, 228-Б","вт и чт 14:00–15:30","o.lebedeva"],
   ["t-kovalev","teacher","Ковалёв Андрей Андреевич","архитектура программного обеспечения","Программной инженерии, 228-Б","пн 15:40–16:30","a.kovalev"],
   ["t-morozov","teacher","Морозов Игорь Викторович","веб-разработка","Информационных систем, 230-Б","пт 12:00–13:00","i.morozov"],
   ["t-safina","teacher","Сафина Алина Рашидовна","компьютерные сети","Информационных систем, 316-Б","ср 15:40–16:30","a.safina"],
@@ -2582,7 +2595,7 @@ const PEOPLE = [
   ["s-nazarova","student","Назарова Алия","ПМ-31, студсовет ИИТ","ПМ-31","3 курс","a.nazarova"]
 ].map(([id,k,n,what,where,when,mail]) => ({id, k, n, ini:n.split(" ").slice(0,2).map(w=>w[0]).join(""),
   role:(k==="teacher" ? "преподаватель · " : "студент · ") + what,
-  info: k==="teacher" ? [["Кафедра",where],["Консультации",when],["Почта",mail+"@example.ru"]] : [["Группа",where],["Курс",when],["Институт","ИИТ"],["Почта",mail+"@student.example.ru"]],
+  info: k==="teacher" ? [["Кафедра",where],["Консультации",when],["Почта",mail+"@example.invalid"]] : [["Группа",where],["Курс",when],["Институт","ИИТ"],["Почта",mail+"@student.example.invalid"]],
   reply: k==="teacher" ? "Добрый день. Посмотрю и отвечу после занятий." : "Привет! Я на паре, отвечу чуть позже."}));
 const personChat = p => ({id:p.id, n:p.n, ini:p.ini, role:p.role, unread:0, info:p.info, reply:p.reply, msgs:[], person:p.k});
 
