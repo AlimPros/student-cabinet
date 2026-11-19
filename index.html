@@ -974,7 +974,9 @@ section.view { min-height: 100dvh; padding: calc(16px + env(safe-area-inset-top)
 .zk .evb-filter button { flex: none; height: 38px; padding: 0 16px; border-radius: 999px; font-size: 14px; font-weight: 600; color: var(--muted); background: var(--surface-2); box-shadow: inset 0 0 0 1px var(--line); display: inline-flex; align-items: center; gap: 6px; }
 .zk .evb-filter button[aria-pressed="true"] { background: var(--h1); color: #fff; box-shadow: none; }
 [data-scheme="dark"] .zk .evb-filter button[aria-pressed="true"] { color: var(--h6); }
-.zk .evb-note { margin: -4px 4px 0; }
+.application-guide .guide-links { display: flex; flex-wrap: wrap; gap: 8px 16px; }
+.application-guide a { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+.application-guide section { margin-top: 12px; }
 .zk .evb-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); }
 .zk .evb { display: flex; gap: 14px; padding: 16px; border-radius: 28px; background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow); min-width: 0;
   -webkit-backdrop-filter: blur(calc(20px * var(--gk))) saturate(160%); backdrop-filter: blur(calc(20px * var(--gk))) saturate(160%); }
@@ -1349,7 +1351,7 @@ function lanes(list) {
 }
 
 /* ---------- Вход ---------- */
-const DEMO_ACCOUNTS = { student: 'lk-demo-2026', jury: 'jury-demo-2026' };
+const DEMO_ACCOUNTS = { student: 'lk-demo-2026', jury: 'jury-demo-2026', student2: 'lk-demo-02', student3: 'lk-demo-03' };
 function openApp() {
   $('#login').hidden = true;
   const app = $('#app');
@@ -2452,7 +2454,7 @@ const SCHEDULE = {
   1:[
     {n:2, s:"Теория вероятностей и мат. статистика", t:"lec", room:"305", b:"корпус А", who:"Петров Д. С."},
     {n:3, s:"Теория вероятностей и мат. статистика", t:"prac", room:"412", b:"корпус А", who:"Петров Д. С."},
-    {n:4, s:"Базы данных", t:"lab", room:"228", b:"корпус Б", who:"Лебедева О. И.", change:{kind:"room", old:"214", text:"Аудитория изменена: в 214-Б не работает проектор"}}
+    {n:4, s:"Базы данных", t:"lab", room:"228", b:"корпус Б", who:"Лебедева О. И.", change:{kind:"room", old:"214", text:"Лабораторная пройдёт в аудитории 228-Б"}}
   ],
   2:[
     {n:1, s:"Архитектура программного обеспечения", t:"lec", room:"101", b:"корпус В", who:"Ковалёв А. А."},
@@ -2519,10 +2521,14 @@ const CATALOG = [
   {id:"stip", t:"Справка о стипендии", d:"Размер выплат за выбранные месяцы.", sla:"1 рабочий день", e:true, p:true},
   {id:"army", t:"Справка для военкомата", d:"По форме № 26, с печатью вуза.", sla:"2 рабочих дня", e:false, p:true},
   {id:"acad", t:"Академическая справка", d:"Выписка оценок и часов — для перевода в другой вуз.", sla:"5 рабочих дней", e:false, p:true},
-  {id:"aid", t:"Материальная помощь", d:"Заявление с подтверждающими документами.", sla:"До 10 дней", app:true},
-  {id:"plan", t:"Индивидуальный график", d:"Для спортсменов, работающих, по здоровью.", sla:"До 7 дней", app:true},
-  {id:"credit", t:"Перезачёт дисциплин", d:"Если предмет уже сдан в другом вузе или колледже.", sla:"До 14 дней", app:true},
-  {id:"leave", t:"Академический отпуск", d:"Перед подачей лучше обсудить с методистом в чате.", sla:"До 10 дней", app:true}
+  {id:"aid", t:"Материальная помощь", d:"Заявление с подтверждающими документами.", sla:"До 10 дней", app:true,
+    rules:"Опишите обстоятельства, по которым вы просите помощь. Укажите, когда они возникли и какие расходы связаны с обращением.", documents:"Подтверждение основания обращения. Например, для расходов подойдут квитанция или счёт."},
+  {id:"plan", t:"Индивидуальный график", d:"Для спортсменов, работающих, по здоровью.", sla:"До 7 дней", app:true,
+    rules:"Укажите период, занятия, которые придётся пропустить, и предложите даты отработки.", documents:"Подтверждение занятости в указанные даты: например, график работы или приглашение на спортивные сборы."},
+  {id:"credit", t:"Перезачёт дисциплин", d:"Если предмет уже сдан в другом вузе или колледже.", sla:"До 14 дней", app:true,
+    rules:"Перечислите уже пройденные дисциплины, часы или зачётные единицы и оценки. Укажите, какие дисциплины просите перезачесть.", documents:"Академическая справка или приложение к диплому с дисциплинами, оценками и объёмом занятий."},
+  {id:"leave", t:"Академический отпуск", d:"Перед подачей лучше обсудить с методистом в чате.", sla:"До 10 дней", app:true,
+    rules:"Укажите основание для отпуска и предполагаемые даты его начала и окончания.", documents:"Подтверждение обстоятельств и периода отсутствия. Вид документа зависит от основания отпуска; его можно уточнить у методиста."}
 ];
 const STEPS = ["Подана","В работе","Готова","Получена"];
 const DEFAULT_REQS = [
@@ -2534,11 +2540,11 @@ const DEFAULT_REQS = [
   {id:"З-2605-0451", t:"Материальная помощь", sub:"Заявление · онлайн", step:3, date:"2026-05-12", info:"Одобрено, выплата 6 000 ₽ в июне"}
 ];
 const DEFAULT_NOTES = [
-  {id:"n1", k:"schedule", t:"Лабораторная по базам данных — в 228-Б", p:"Сегодня, 4 пара. В 214-Б не работает проектор.", when:"сегодня, 07:40", go:"schedule", imp:true},
-  {id:"n2", k:"schedule", t:"Практика по архитектуре ПО переносится на субботу", p:"Четверг, 2 пара → суббота, 3 пара, ауд. 410-А.", when:"вчера, 18:12", go:"schedule", imp:true},
-  {id:"n3", k:"deadline", t:"ЛР № 6 по базам данных — через 5 дней", p:"Отчёт загружается в курс, срок 14 ноября, 23:59.", when:"вчера, 10:00", go:"grades"},
+  {id:"session-published", k:"schedule", t:"Опубликовано расписание зимней сессии", p:"В разделе «Учёба» откройте вкладку «Сессия», чтобы посмотреть даты зачётов и экзаменов.", when:"18 ноября", go:"grades", imp:true},
+  {id:"plan-applications", k:"dean", t:"Открыт приём заявлений на индивидуальный график", p:"Подготовьте даты и основание для изменения графика. Правила и список документов доступны в форме заявления.", when:"17 ноября", go:"requests", imp:true},
+  {id:"n3", k:"deadline", t:"Срок сдачи лабораторной работы по базам данных", p:"Отчёт загружается в курс, срок 24 ноября, 23:59.", when:"вчера, 10:00", go:"grades"},
   {id:"n4", k:"docs", t:"Справка об обучении готова", p:"Электронная, с подписью. Её можно открыть и отправить.", when:"6 ноября", go:"requests"},
-  {id:"n5", k:"dean", t:"Повышенная стипендия: заявки до 20 ноября", p:"За научные, спортивные, общественные достижения. Подаётся онлайн.", when:"5 ноября", go:"requests", imp:true},
+  {id:"n5", k:"dean", t:"Повышенная стипендия: приём заявок до 20 ноября", p:"Подготовьте подтверждения научных, спортивных или общественных достижений. Условия приёма уточните в деканате.", when:"5 ноября", go:"requests", imp:true},
   {id:"n6", k:"news", t:"Ярмарка стажировок 14 ноября", p:"Атриум корпуса А, 12:00–17:00. Будет 30 компаний, нужна регистрация.", when:"4 ноября"},
   {id:"n7", k:"dean", t:"Темы курсовых по архитектуре ПО", p:"Список на кафедре и в разделе «Учёба». Выбрать до 20 ноября.", when:"3 ноября", go:"grades"},
   {id:"n8", k:"security", t:"Новый вход: MacBook, Safari", p:"Если это были не вы — завершите сеанс в настройках.", when:"2 ноября", go:"settings"}
@@ -2619,10 +2625,6 @@ const DEFAULT_DEVICES = [
   {id:"d1", n:"iPhone 15 · приложение", w:"сейчас", cur:true},
   {id:"d2", n:"MacBook · Safari", w:"2 ноября, 21:15"},
   {id:"d3", n:"Компьютерный класс 228-Б · Chrome", w:"вчера, 14:02"}
-];
-const ACCESS_LOG = [
-  ["Ирина Волкова, методист","Успеваемость","Приказ о стипендии на ноябрь","5 ноя"],
-  ["Петров Д. С., преподаватель","Оценки по ТВиМС","Выставление баллов за КР № 2","3 ноя"]
 ];
 const UNIS = [
   {id:"green", n:"Зачётка", h:162, label:"Доска"},
@@ -2838,11 +2840,23 @@ function vRequests(){
 
 /* ===== окно выбора: кнопка «перетекает» в стеклянное окно по центру ===== */
 const SRCH = '<svg class="i s" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>';
+function applicationGuide(c) {
+  const sections = [["rules", "Правила заполнения", c.rules], ["documents", "Требуемые документы", c.documents]];
+  const links = sections.map(([key, title]) => {
+    const id = `guide-${c.id}-${key}`;
+    return `<a href="#${id}" data-action="guide" aria-controls="${id}" aria-expanded="false">${title}</a>`;
+  }).join("");
+  const panels = sections.map(([key, title, body]) =>
+    `<section id="guide-${c.id}-${key}" hidden><b>${title}</b><p>${body}</p><small>Памятка для учебного примера.</small></section>`
+  ).join("");
+  return `<div class="application-guide"><div class="guide-links">${links}</div>${panels}</div>`;
+}
 function pickItems(k){
   if(k==="archive") return S.reqs.filter(r=>r.step>=3).map(r=>({id:r.id, t:r.t, d:`${r.sub} · № ${r.id}`, k:`${r.t} ${r.sub} ${r.id}`, body: reqCard(r)}));
   return CATALOG.filter(c=>!!c.app === (k==="app")).map(c=>({id:c.id, t:c.t, d:`${c.d}`, sla:c.sla, k:`${c.t} ${c.d}`,
     body:`<form class="form gm-form" data-id="${c.id}">${orderFields(c)}
       <div class="kv small" style="padding:12px;border-radius:12px;background:var(--surface-2)"><dt>Срок</dt><dd>${c.sla}</dd><dt>Данные</dt><dd>${STUDENT.fio}, ${STUDENT.group}</dd></div>
+      ${c.app ? applicationGuide(c) : ""}
       <p class="err" hidden></p><button class="btn block" type="submit">${c.app?"Подать заявление":"Заказать справку"}</button></form>`}));
 }
 function openPicker(k, openId){
@@ -3010,7 +3024,6 @@ function vEvents(){
   const f = S.evFilter, list = EVENTS.filter(ev => f==="all" || (f==="joint" ? ev.joint : f==="mine" ? evGoing(ev) : ev.cat===f));
   const mine = EVENTS.filter(evGoing).length;
   return `<div class="evb-filter" role="group" aria-label="Фильтр мероприятий">${EV_CATS.map(([k,n])=>`<button data-action="evf" data-k="${k}" aria-pressed="${f===k}">${n}${k==="mine"&&mine?` <span class="ms-badge">${mine}</span>`:""}</button>`).join("")}</div>
-    <p class="muted small evb-note">События вуза и совместные с другими организациями. «Пойду» добавляет мероприятие в ваше расписание.</p>
     <div class="evb-grid">${list.map((ev,i)=>evCard(ev, i===0 && f==="all")).join("") || `<div class="empty">${f==="mine"?"Вы пока никуда не записались.":"В этой категории пока ничего нет."}</div>`}</div>`;
 }
 function evToggle(id){
@@ -3089,8 +3102,6 @@ function vSettings(){
             ${tg("tfa", S.tfa, "Вход с кодом подтверждения", "Код из приложения при входе с нового устройства")}
             <div><div class="row" style="margin-bottom:8px"><b class="grow" style="font-weight:500">Где выполнен вход</b><span class="muted small">${S.devices.length}</span></div>
               <div style="display:grid;gap:8px">${S.devices.map(d=>`<div class="row small"><span class="grow">${esc(d.n)}<br><span class="muted">${d.cur?"это устройство":esc(d.w)}</span></span>${d.cur?'<span class="chip ok">Активно</span>':`<button class="btn sm ghost" data-action="kill" data-id="${d.id}">Завершить</button>`}</div>`).join("")}</div></div>
-            <div><b style="font-weight:500">Кто смотрел мои данные</b><p class="muted small" style="margin:2px 0 8px">Каждый просмотр сотрудником записывается с причиной.</p>
-              <div style="display:grid;gap:8px">${ACCESS_LOG.map(([w,what,why,d])=>`<div class="small"><div class="row"><b class="grow" style="font-weight:600">${esc(w)}</b><span class="muted mono">${d}</span></div><span class="muted">${esc(what)} — ${esc(why)}</span></div>`).join("")}</div></div>
           </div>
         </section>
         <section class="card"><div class="card-h"><h2>Уведомления и приватность</h2></div>
@@ -3308,6 +3319,13 @@ document.addEventListener("click", e => {
   if(act==="pref") return;
   switch(act){
     case "day": S.day = +a.dataset.w; render(); break;
+    case "guide": {
+      e.preventDefault();
+      const panel = document.getElementById(a.getAttribute("aria-controls"));
+      panel.hidden = !panel.hidden;
+      a.setAttribute("aria-expanded", String(!panel.hidden));
+      break;
+    }
     case "gtab": S.gradeTab = a.dataset.t; render(); break;
     case "sem": S.sem = +a.dataset.n; render(); break;
     case "subj": S.openSubj[a.dataset.i] = !S.openSubj[a.dataset.i]; render(); break;
