@@ -2,7 +2,7 @@
 
 Учебный прототип объединяет повседневные задачи студента. Можно узнать время ближайшей пары, посмотреть баллы по предметам и заказать справку об обучении.
 
-**[Открыть кабинет](https://student-lks.vercel.app/)** · [Репозиторий на GitHub](https://github.com/AlimPros/student-cabinet) · [Скачать исходники (ZIP)](https://github.com/AlimPros/student-cabinet/raw/refs/heads/main/source.zip)
+**[Открыть кабинет](https://campusdesk-app.github.io/)** · [Репозиторий на GitHub](https://github.com/campusdesk-app/campusdesk-app.github.io) · [Скачать исходники (ZIP)](https://github.com/campusdesk-app/campusdesk-app.github.io/raw/refs/heads/main/source.zip)
 
 ## Демо-вход
 
